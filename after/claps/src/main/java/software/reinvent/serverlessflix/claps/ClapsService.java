@@ -6,10 +6,8 @@ package software.reinvent.serverlessflix.claps;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import software.amazon.awssdk.services.dynamodb.DynamoDbAsyncClient;
-import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
 import software.amazon.awssdk.services.dynamodb.model.AttributeValue;
 import software.amazon.awssdk.services.dynamodb.model.PutItemRequest;
-import software.amazon.awssdk.services.dynamodb.model.PutItemResponse;
 import software.reinvent.serverlessflix.claps.domain.Video;
 
 import java.util.Map;
@@ -43,8 +41,8 @@ public class ClapsService {
                 .build();
 
         try {
-            PutItemResponse putItemResponse = this.dynamoDbAsyncClient.putItem(putItemRequest).get();
-//            logger.info("Consumed capacity: " + putItemResponse.consumedCapacity().capacityUnits());
+            this.dynamoDbAsyncClient.putItem(putItemRequest).get();
+            logger.info("Video with ID: {} created", video.id());
         } catch (InterruptedException | ExecutionException e) {
             logger.error(e.getMessage());
             throw new UnableToSaveException();

@@ -30,9 +30,9 @@ import java.util.concurrent.ExecutionException;
 public class ClapsServiceTest {
 
     @Container
-    public static final GenericContainer DYNAMODB_CONTAINER = new GenericContainer(DockerImageName.parse("amazon/dynamodb-local:2.0.0"))
+    private static final GenericContainer DYNAMODB_CONTAINER = new GenericContainer(DockerImageName.parse("amazon/dynamodb-local:2.0.0"))
             .withExposedPorts(8000);
-    public static final String TABLE_NAME = "TABLE";
+    private static final String TABLE_NAME = "TABLE";
 
     private static ClapsService clapsService;
 
@@ -71,6 +71,6 @@ public class ClapsServiceTest {
                 "08d143f0-00f1-7052-f97a-cbcda39ff077",
                 "08d143f0-00f1-7052-f97a-cbcda39ff077",
                 new Author("random1"));
-        this.clapsService.createVideo(video);
+        clapsService.createVideo(video);
     }
 }
