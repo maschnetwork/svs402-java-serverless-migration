@@ -5,6 +5,7 @@ package software.reinvent.serverlessflix.claps;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import software.amazon.awssdk.services.dynamodb.DynamoDbAsyncClient;
 import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
 import software.amazon.awssdk.services.dynamodb.model.AttributeValue;
 import software.amazon.awssdk.services.dynamodb.model.PutItemRequest;
@@ -12,19 +13,25 @@ import software.amazon.awssdk.services.dynamodb.model.PutItemResponse;
 import software.reinvent.serverlessflix.claps.domain.Video;
 
 import java.util.Map;
+import java.util.concurrent.ExecutionException;
 
 public class ClapsService {
 
     private static final Logger logger = LoggerFactory.getLogger(ClapsService.class);
 
-    private final DynamoDbClient dynamoDbClient = DynamoDbClient.create();
     private final String tableName;
+    private final DynamoDbAsyncClient dynamoDbAsyncClient;
 
     public ClapsService(String tableName) {
-        this.tableName = tableName;
+        this(tableName, DynamoDbAsyncClient.create());
     }
 
-    public void createVideo(Video video) {
+    public ClapsService(String tableName, DynamoDbAsyncClient dynamoDbAsyncClient) {
+        this.tableName = tableName;
+        this.dynamoDbAsyncClient = dynamoDbAsyncClient;
+    }
+
+    public void createVideo(Video video) throws UnableToSaveException {
         Map<String, AttributeValue> attributeMap = Map.of("id", AttributeValue.fromS(video.id()),
                 "title", AttributeValue.fromS("fake title"),
                 "author", AttributeValue.fromS(video.author().username()),
@@ -34,8 +41,13 @@ public class ClapsService {
                 .tableName(this.tableName)
                 .item(attributeMap)
                 .build();
-        PutItemResponse putItemResponse = this.dynamoDbClient.putItem(putItemRequest);
 
-        logger.info("Consumed capacity: " + putItemResponse.consumedCapacity().capacityUnits());
+        try {
+            PutItemResponse putItemResponse = this.dynamoDbAsyncClient.putItem(putItemRequest).get();
+//            logger.info("Consumed capacity: " + putItemResponse.consumedCapacity().capacityUnits());
+        } catch (InterruptedException | ExecutionException e) {
+            logger.error(e.getMessage());
+            throw new UnableToSaveException();
+        }
     }
 }
