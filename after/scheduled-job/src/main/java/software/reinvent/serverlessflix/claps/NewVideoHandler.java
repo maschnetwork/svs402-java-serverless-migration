@@ -6,17 +6,17 @@ import com.amazonaws.services.lambda.runtime.LambdaRuntime;
 import com.amazonaws.services.lambda.runtime.RequestStreamHandler;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import software.reinvent.serverlessflix.claps.domain.Video;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-/**
- * Handler for requests to Lambda function.
- */
 public class NewVideoHandler implements RequestStreamHandler {
 
+    private static final Logger logger = LoggerFactory.getLogger(NewVideoHandler.class);
     private static final ObjectMapper objectMapper;
 
     static {
@@ -24,7 +24,6 @@ public class NewVideoHandler implements RequestStreamHandler {
         objectMapper.registerModule(new JavaTimeModule());
     }
 
-    private final LambdaLogger logger = LambdaRuntime.getLogger();
     private final ClapsService clapsService;
 
     public NewVideoHandler() {
@@ -35,7 +34,7 @@ public class NewVideoHandler implements RequestStreamHandler {
     public void handleRequest(InputStream input, OutputStream output, Context context) throws IOException {
         EventBridgeSchedulerEvent event = objectMapper.readValue(input, EventBridgeSchedulerEvent.class);
 //        Video video = (Video) event.detail();
-        logger.log("Event: " + event);
+        logger.info("Event: " + event);
 
 //        this.clapsService.createVideo(video);
     }

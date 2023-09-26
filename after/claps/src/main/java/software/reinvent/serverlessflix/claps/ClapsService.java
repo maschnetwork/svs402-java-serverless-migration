@@ -3,14 +3,19 @@
 
 package software.reinvent.serverlessflix.claps;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
 import software.amazon.awssdk.services.dynamodb.model.AttributeValue;
 import software.amazon.awssdk.services.dynamodb.model.PutItemRequest;
+import software.amazon.awssdk.services.dynamodb.model.PutItemResponse;
 import software.reinvent.serverlessflix.claps.domain.Video;
 
 import java.util.Map;
 
 public class ClapsService {
+
+    private static final Logger logger = LoggerFactory.getLogger(ClapsService.class);
 
     private final DynamoDbClient dynamoDbClient = DynamoDbClient.create();
     private final String tableName;
@@ -29,6 +34,8 @@ public class ClapsService {
                 .tableName(this.tableName)
                 .item(attributeMap)
                 .build();
-        this.dynamoDbClient.putItem(putItemRequest);
+        PutItemResponse putItemResponse = this.dynamoDbClient.putItem(putItemRequest);
+
+        logger.info("Consumed capacity: " + putItemResponse.consumedCapacity().capacityUnits());
     }
 }
