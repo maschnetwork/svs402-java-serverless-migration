@@ -32,7 +32,7 @@
                 <artifactId>exec-maven-plugin</artifactId>
                 <version>3.0.0</version>
                 <configuration>
-                    <mainClass>com.myorg.InfraApp</mainClass>
+                    <mainClass>infrastructure.reinvent.serverlessflix.claps.InfraApp</mainClass>
                 </configuration>
             </plugin>
         </plugins>

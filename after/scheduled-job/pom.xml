@@ -23,6 +23,25 @@
           <artifactId>aws-lambda-java-events</artifactId>
           <version>3.11.1</version>
         </dependency>
+
+        <dependency>
+            <groupId>software.amazon.awssdk</groupId>
+            <artifactId>dynamodb</artifactId>
+            <version>2.20.109</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <version>2.0.7</version>
+        </dependency>
+        <dependency>
+            <groupId>com.hkupty.penna</groupId>
+            <artifactId>penna-core</artifactId>
+            <version>0.6.2</version>
+        </dependency>
+
+
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-databind</artifactId>

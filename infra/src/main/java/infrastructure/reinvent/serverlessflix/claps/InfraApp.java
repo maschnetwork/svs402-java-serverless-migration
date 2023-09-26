@@ -1,4 +1,4 @@
-package com.myorg;
+package infrastructure.reinvent.serverlessflix.claps;
 
 import software.amazon.awscdk.App;
 import software.amazon.awscdk.StackProps;
