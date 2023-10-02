@@ -11,7 +11,7 @@
     <artifactId>svs402-scheduled-job</artifactId>
     <version>1.0</version>
     <packaging>jar</packaging>
-    <name>svs402-scheduled-job</name>
+    <name>ServerlessFlix - Scheduled Notification</name>
 
     <dependencies>
         <dependency>
