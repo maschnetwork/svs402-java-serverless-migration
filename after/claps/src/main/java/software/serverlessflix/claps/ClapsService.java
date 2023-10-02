@@ -1,14 +1,14 @@
 // Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: MIT-0
 
-package software.reinvent.serverlessflix.claps;
+package software.serverlessflix.claps;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import software.amazon.awssdk.services.dynamodb.DynamoDbAsyncClient;
 import software.amazon.awssdk.services.dynamodb.model.AttributeValue;
 import software.amazon.awssdk.services.dynamodb.model.PutItemRequest;
-import software.reinvent.serverlessflix.claps.domain.Video;
+import software.serverlessflix.claps.domain.Video;
 
 import java.util.Map;
 import java.util.concurrent.ExecutionException;

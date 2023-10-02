@@ -1,4 +1,4 @@
-package software.reinvent.serverlessflix.claps;
+package software.serverlessflix.claps;
 
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
@@ -19,8 +19,8 @@ import software.amazon.awssdk.services.dynamodb.model.CreateTableResponse;
 import software.amazon.awssdk.services.dynamodb.model.KeySchemaElement;
 import software.amazon.awssdk.services.dynamodb.model.KeyType;
 import software.amazon.awssdk.services.dynamodb.model.ScalarAttributeType;
-import software.reinvent.serverlessflix.claps.domain.Author;
-import software.reinvent.serverlessflix.claps.domain.Video;
+import software.serverlessflix.claps.domain.Author;
+import software.serverlessflix.claps.domain.Video;
 
 import java.net.URI;
 import java.util.concurrent.ExecutionException;

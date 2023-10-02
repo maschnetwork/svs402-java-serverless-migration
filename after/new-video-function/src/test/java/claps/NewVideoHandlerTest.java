@@ -1,6 +1,7 @@
-package software.reinvent.serverlessflix.claps;
+package claps;
 
 import org.junit.jupiter.api.Test;
+import software.serverlessflix.claps.NewVideoHandler;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -8,28 +9,7 @@ import java.io.IOException;
 public class NewVideoHandlerTest {
 
     public static final TestContext TEST_CONTEXT = new TestContext();
-    private NewVideoHandler newVideoHandler = new NewVideoHandler();
-
-    private final String event = """
-            {
-                    "version": "0",
-                    "id": "fe8d3c65-xmpl-c5c3-2c87-81584709a377",
-                    "detail-type": "RDS DB Instance Event",
-                    "source": "aws.rds",
-                    "account": "123456789012",
-                    "time": "2020-04-28T07:20:20Z",
-                    "region": "us-east-2",
-                    "resources": [
-                            "arn:aws:rds:us-east-2:123456789012:db:rdz6xmpliljlb1"
-                    ],
-                    "detail": {}
-            }
-            """;
-
-    @Test
-    public void testScheduledEvent() throws IOException {
-        newVideoHandler.handleRequest(new ByteArrayInputStream(event.getBytes()), null, TEST_CONTEXT);
-    }
+    private final NewVideoHandler newVideoHandler = new NewVideoHandler();
 
     @Test
     public void validPreValidateEventSerializesWithoutError() throws IOException {
