@@ -11,6 +11,7 @@
         <module>claps</module>
         <module>new-video-function</module>
         <module>scheduled-job</module>
+        <module>rest-api</module>
     </modules>
 
     <properties>
