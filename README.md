@@ -31,6 +31,8 @@ cdk destroy
 
 ## Todo 
 
+- [ ] Remove any sensitive data from tests
+
 ### After
 
 - [ ]

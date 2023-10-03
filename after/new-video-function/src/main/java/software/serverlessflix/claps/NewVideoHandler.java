@@ -19,8 +19,10 @@ import software.serverlessflix.claps.domain.Video;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
+import java.util.Date;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
@@ -55,17 +57,20 @@ public class NewVideoHandler implements RequestStreamHandler {
         // @TODO could improve this serialization story even more
         Video video = objectMapper.convertValue(event.detail().get("video"), Video.class);
 
-        try {
-            this.clapsService.createVideo(video);
-        } catch (UnableToSaveException e) {
-            logger.error(e.getMessage());
-            throw new RuntimeException(e);
-        }
+//        try {
+//            this.clapsService.createVideo(video);
+//        } catch (UnableToSaveException e) {
+//            logger.error(e.getMessage());
+//            throw new RuntimeException(e);
+//        }
 
-        // @TODO do we need to consider partial failure?
+        var dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
+        String oneHourFromNow = dateFormat.format(new Date(Instant.now().plus(1, ChronoUnit.HOURS).toEpochMilli()));
+
         CreateScheduleRequest scheduleRequest = CreateScheduleRequest.builder()
                 .name(video.author().username() + "-1m-video-nofitication")
-                .startDate(Instant.now().plus(1, ChronoUnit.MINUTES))
+                .startDate(Instant.now())
+                .scheduleExpression(String.format("at(%S)", oneHourFromNow))
                 .flexibleTimeWindow(FlexibleTimeWindow.builder()
                         .mode(FlexibleTimeWindowMode.OFF)
                         .build())
@@ -83,6 +88,7 @@ public class NewVideoHandler implements RequestStreamHandler {
                 .build();
 
         try {
+            // @TODO do we need to consider partial failure?
             CreateScheduleResponse createScheduleResponse = this.schedulerAsyncClient.createSchedule(scheduleRequest).get();
             logger.info("schedule arn: {}", createScheduleResponse.scheduleArn());
         } catch (InterruptedException | ExecutionException e) {

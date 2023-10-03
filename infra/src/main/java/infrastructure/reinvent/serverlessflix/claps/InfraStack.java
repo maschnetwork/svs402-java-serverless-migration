@@ -39,9 +39,21 @@ public class InfraStack extends Stack {
                         .build())
                 .build();
 
-        Role lambdaRole = Role.Builder.create(this, "Role")
+        Role invokeNotifierFunctionRole = Role.Builder.create(this, "Role")
                 .roleName("invokeNotifierFunctionRole")
                 .assumedBy(new ServicePrincipal("scheduler.amazonaws.com"))
+                .build();
+
+        Function notifyCreatorHandler = Function.Builder.create(this,"NotifyCreatorHandler")
+                .runtime(Runtime.JAVA_17)
+                .memorySize(2048)
+                .handler("software.serverlessflix.claps.NotifyCreator")
+                .timeout(Duration.seconds(30))
+                .snapStart(SnapStartConf.ON_PUBLISHED_VERSIONS)
+                .code(Code.fromAsset("../after/scheduled-job/target/svs402-scheduled-job-1.0.jar"))
+                .tracing(Tracing.ACTIVE)
+                .environment(Map.of(
+                        "TABLE_NAME", videoClapsTable.getTableName()))
                 .build();
 
         Function newVideoHandler = Function.Builder.create(this,"NewVideoHandler")
@@ -54,13 +66,21 @@ public class InfraStack extends Stack {
                 .tracing(Tracing.ACTIVE)
                 .environment(Map.of(
                         "TABLE_NAME", videoClapsTable.getTableName(),
-                        "CREATOR_NOTIFICATION_TARGET", "amazing",
-                        "CREATOR_NOTIFICATION_ROLE_ARN", lambdaRole.getRoleArn()))
+                        // @TODO use alias
+                        "CREATOR_NOTIFICATION_TARGET", notifyCreatorHandler.getFunctionArn(),
+                        "CREATOR_NOTIFICATION_ROLE_ARN", invokeNotifierFunctionRole.getRoleArn()))
                 .build();
 
         videoClapsTable.grantReadWriteData(newVideoHandler);
-
-
+        newVideoHandler.addToRolePolicy(PolicyStatement.Builder.create()
+                .actions(List.of("scheduler:CreateSchedule"))
+                .resources(List.of("*"))
+                .build());
+        // required to pass a role to another service - https://docs.aws.amazon.com/ARG/latest/userguide/security_iam_troubleshoot.html#security_troubleshoot-passrole
+        newVideoHandler.addToRolePolicy(PolicyStatement.Builder.create()
+                .actions(List.of("iam:PassRole"))
+                .resources(List.of(invokeNotifierFunctionRole.getRoleArn()))
+                .build());
 
         PolicyStatement statement = PolicyStatement.Builder.create()
                 .effect(Effect.ALLOW)
@@ -68,7 +88,7 @@ public class InfraStack extends Stack {
                 .resources(List.of(newVideoHandler.getFunctionArn()))
                 .build();
         Policy policy = Policy.Builder.create(this, "Policy")
-                .roles(List.of(lambdaRole))
+                .roles(List.of(invokeNotifierFunctionRole))
                 .policyName("ScheduleToInvokeLambdas")
                 .statements(List.of(statement))
                 .build();
@@ -84,7 +104,7 @@ public class InfraStack extends Stack {
 //                .scheduleExpression("rate(1 minute)")
 //                .target(CfnSchedule.TargetProperty.builder()
 //                        .arn(newVideoHandler.getFunctionArn())
-//                        .roleArn(lambdaRole.getRoleArn())
+//                        .roleArn(invokeNotifierFunctionRole.getRoleArn())
 //                        .build())
 //                .build();
 
