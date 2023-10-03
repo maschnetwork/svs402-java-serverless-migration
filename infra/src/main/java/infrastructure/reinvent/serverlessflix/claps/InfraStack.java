@@ -19,7 +19,6 @@ import software.amazon.awscdk.StackProps;
 import software.amazon.awscdk.Duration;
 import software.amazon.awscdk.services.lambda.Runtime;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 

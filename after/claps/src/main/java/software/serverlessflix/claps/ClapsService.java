@@ -45,7 +45,7 @@ public class ClapsService {
             logger.info("Video with ID: {} created", video.id());
         } catch (InterruptedException | ExecutionException e) {
             logger.error(e.getMessage());
-            throw new UnableToSaveException();
+            throw new UnableToSaveException(e);
         }
     }
 }

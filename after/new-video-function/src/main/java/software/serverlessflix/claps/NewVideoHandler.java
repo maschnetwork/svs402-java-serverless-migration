@@ -21,6 +21,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
+import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
 public class NewVideoHandler implements RequestStreamHandler {
@@ -49,7 +50,7 @@ public class NewVideoHandler implements RequestStreamHandler {
 
     @Override
     public void handleRequest(InputStream input, OutputStream output, Context context) throws IOException {
-        EventBridgeSchedulerEvent event = objectMapper.readValue(input, EventBridgeSchedulerEvent.class);
+        EventBridgeSchedulerEvent<Map<String, Object>> event = objectMapper.readValue(input, EventBridgeSchedulerEvent.class);
 
         // @TODO could improve this serialization story even more
         Video video = objectMapper.convertValue(event.detail().get("video"), Video.class);
@@ -57,6 +58,7 @@ public class NewVideoHandler implements RequestStreamHandler {
         try {
             this.clapsService.createVideo(video);
         } catch (UnableToSaveException e) {
+            logger.error(e.getMessage());
             throw new RuntimeException(e);
         }
 

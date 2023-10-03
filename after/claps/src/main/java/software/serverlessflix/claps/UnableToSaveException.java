@@ -4,4 +4,7 @@
 package software.serverlessflix.claps;
 
 public class UnableToSaveException extends Throwable {
+    public UnableToSaveException(Exception e) {
+        super(e);
+    }
 }
