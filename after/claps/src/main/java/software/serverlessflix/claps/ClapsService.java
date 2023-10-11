@@ -30,12 +30,11 @@ public class ClapsService {
     }
 
     public void createVideo(Video video) throws UnableToSaveException {
-        Map<String, AttributeValue> attributeMap = Map.of("id", AttributeValue.fromS(video.id()),
+        var attributeMap = Map.of("id", AttributeValue.fromS(video.id()),
                 "title", AttributeValue.fromS("fake title"),
-                "author", AttributeValue.fromS(video.author().username()),
-                "claps", AttributeValue.fromN("0"));
+                "author", AttributeValue.fromS(video.author().username()));
 
-        PutItemRequest putItemRequest = PutItemRequest.builder()
+        var putItemRequest= PutItemRequest.builder()
                 .tableName(this.tableName)
                 .item(attributeMap)
                 .build();

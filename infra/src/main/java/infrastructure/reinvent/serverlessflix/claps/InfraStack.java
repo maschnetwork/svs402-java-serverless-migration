@@ -4,6 +4,10 @@ import software.amazon.awscdk.services.dynamodb.Attribute;
 import software.amazon.awscdk.services.dynamodb.AttributeType;
 import software.amazon.awscdk.services.dynamodb.BillingMode;
 import software.amazon.awscdk.services.dynamodb.Table;
+import software.amazon.awscdk.services.events.EventBus;
+import software.amazon.awscdk.services.events.EventPattern;
+import software.amazon.awscdk.services.events.Rule;
+import software.amazon.awscdk.services.events.targets.LambdaFunction;
 import software.amazon.awscdk.services.iam.Effect;
 import software.amazon.awscdk.services.iam.Policy;
 import software.amazon.awscdk.services.iam.PolicyStatement;
@@ -31,7 +35,10 @@ public class InfraStack extends Stack {
     public InfraStack(final Construct scope, final String id, final StackProps props) {
         super(scope, id, props);
 
-        Table videoClapsTable = Table.Builder.create(this, "VideoClaps")
+        var newVideoEventBus = EventBus.Builder.create(this, "NewVideoEventBus")
+                    .eventBusName("videos").build();
+
+        var videoClapsTable = Table.Builder.create(this, "VideoClaps")
                 .billingMode(BillingMode.PAY_PER_REQUEST)
                 .partitionKey(Attribute.builder()
                         .name("id")
@@ -39,12 +46,12 @@ public class InfraStack extends Stack {
                         .build())
                 .build();
 
-        Role invokeNotifierFunctionRole = Role.Builder.create(this, "Role")
+       /* var invokeNotifierFunctionRole = Role.Builder.create(this, "Role")
                 .roleName("invokeNotifierFunctionRole")
                 .assumedBy(new ServicePrincipal("scheduler.amazonaws.com"))
                 .build();
 
-        Function notifyCreatorHandler = Function.Builder.create(this,"NotifyCreatorHandler")
+        var notifyCreatorHandler = Function.Builder.create(this,"NotifyCreatorHandler")
                 .runtime(Runtime.JAVA_17)
                 .memorySize(2048)
                 .handler("software.serverlessflix.claps.NotifyCreator")
@@ -54,9 +61,9 @@ public class InfraStack extends Stack {
                 .tracing(Tracing.ACTIVE)
                 .environment(Map.of(
                         "TABLE_NAME", videoClapsTable.getTableName()))
-                .build();
+                .build(); */
 
-        Function newVideoHandler = Function.Builder.create(this,"NewVideoHandler")
+        var newVideoHandler = Function.Builder.create(this,"NewVideoHandler")
                 .runtime(Runtime.JAVA_17)
                 .memorySize(2048)
                 .handler("software.serverlessflix.claps.NewVideoHandler")
@@ -65,14 +72,24 @@ public class InfraStack extends Stack {
                 .code(Code.fromAsset("../after/new-video-function/target/svs402-new-video-function-1.0.jar"))
                 .tracing(Tracing.ACTIVE)
                 .environment(Map.of(
-                        "TABLE_NAME", videoClapsTable.getTableName(),
+                        "TABLE_NAME", videoClapsTable.getTableName()))
                         // @TODO use alias
-                        "CREATOR_NOTIFICATION_TARGET", notifyCreatorHandler.getFunctionArn(),
-                        "CREATOR_NOTIFICATION_ROLE_ARN", invokeNotifierFunctionRole.getRoleArn()))
+                      //   "CREATOR_NOTIFICATION_TARGET", notifyCreatorHandler.getFunctionArn(),
+                     //   "CREATOR_NOTIFICATION_ROLE_ARN", invokeNotifierFunctionRole.getRoleArn()))
                 .build();
 
         videoClapsTable.grantReadWriteData(newVideoHandler);
-        newVideoHandler.addToRolePolicy(PolicyStatement.Builder.create()
+
+        var target = LambdaFunction.Builder.create(newVideoHandler).build();
+        var eventPattern = EventPattern.builder().source(List.of("software.serverlessflix.video")).build();
+        var myRule = Rule.Builder.create(this, "NewVideoRule")
+                .targets(List.of(target))
+                .eventBus(newVideoEventBus)
+                .eventPattern(eventPattern)
+                .build();
+
+
+       /* newVideoHandler.addToRolePolicy(PolicyStatement.Builder.create()
                 .actions(List.of("scheduler:CreateSchedule"))
                 .resources(List.of("*"))
                 .build());
@@ -91,7 +108,7 @@ public class InfraStack extends Stack {
                 .roles(List.of(invokeNotifierFunctionRole))
                 .policyName("ScheduleToInvokeLambdas")
                 .statements(List.of(statement))
-                .build();
+                .build(); */
 
 //        CfnScheduleGroup scheduleGroup = CfnScheduleGroup.Builder.create(this, "scheduleGroup")
 //                .name("lambdaSchedules")
