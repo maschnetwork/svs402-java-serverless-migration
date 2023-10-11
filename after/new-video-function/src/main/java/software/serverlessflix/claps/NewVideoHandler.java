@@ -33,13 +33,12 @@ public class NewVideoHandler implements RequestStreamHandler {
 
     private final ClapsService clapsService;
     private final SchedulerAsyncClient schedulerAsyncClient;
-    private final String creatorNotificationTarget;
-    private final String creatorNotificationRoleArn;
+    private final String NOTIFICATION_LAMBDA_ARN = System.getenv("CREATOR_NOTIFICATION_TARGET");
+    private static final String NOTIFICATION_ROLE_ARN = System.getenv("CREATOR_NOTIFICATION_ROLE_ARN");
+    private static final String SCHEDULING_GROUP = System.getenv("SCHEDULING_GROUP");;
 
     public NewVideoHandler() {
         this.clapsService = new ClapsService(System.getenv("TABLE_NAME"));
-        this.creatorNotificationTarget = System.getenv("CREATOR_NOTIFICATION_TARGET");
-        this.creatorNotificationRoleArn = System.getenv("CREATOR_NOTIFICATION_ROLE_ARN");
         this.schedulerAsyncClient = SchedulerAsyncClient.builder()
                 .httpClient(AwsCrtAsyncHttpClient.create())
                 .build();
@@ -51,16 +50,14 @@ public class NewVideoHandler implements RequestStreamHandler {
         var video = event.detail();
 
         try {
+            //Todo: What about Dual Write issues? -> Ignoring for Demo purposes
             this.clapsService.createVideo(video);
-        } catch (UnableToSaveException e) {
-            logger.error(e.getMessage());
-            throw new RuntimeException("Error while saving video", e);
-        }
-
-        try {
             var scheduleRequest = createScheduleRequest(video);
             var createScheduleResponse = this.schedulerAsyncClient.createSchedule(scheduleRequest).get();
             logger.info("schedule arn: {}", createScheduleResponse.scheduleArn());
+        } catch (UnableToSaveException e) {
+            logger.error(e.getMessage());
+            throw new RuntimeException("Error while saving video", e);
         } catch (InterruptedException | ExecutionException e) {
             throw new RuntimeException("Error while creating scheduled tasks", e);
         }
@@ -69,23 +66,25 @@ public class NewVideoHandler implements RequestStreamHandler {
     private CreateScheduleRequest createScheduleRequest(Video video) {
         var dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
 
-        var oneHourFromNow = dateFormat.format(new Date(Instant.now().plus(1, ChronoUnit.HOURS).toEpochMilli()));
+        //Todo: Changed to 1 Minute for testing
+        var oneHourFromNow = dateFormat.format(new Date(Instant.now().plus(1, ChronoUnit.MINUTES).toEpochMilli()));
         return CreateScheduleRequest.builder()
                 .name(video.author().username() + "-1m-video-notification")
                 .startDate(Instant.now())
+                .groupName(SCHEDULING_GROUP)
                 .scheduleExpression(String.format("at(%S)", oneHourFromNow))
                 .flexibleTimeWindow(FlexibleTimeWindow.builder()
                         .mode(FlexibleTimeWindowMode.OFF)
                         .build())
                 .actionAfterCompletion(ActionAfterCompletion.DELETE)
                 .target(Target.builder()
-                        .arn(this.creatorNotificationTarget)
-                        .roleArn(this.creatorNotificationRoleArn)
+                        .arn(NOTIFICATION_LAMBDA_ARN)
+                        .roleArn(NOTIFICATION_ROLE_ARN)
                         .input("""
                             {
                                 "video":"%s",
-                                "author_username":"%s",
-                                "author_email":"%s"
+                                "authorUsername":"%s",
+                                "authorEmail":"%s"
                             }
                             """.formatted(video.id(), video.author().username(), video.author().email()))
                         .build())
