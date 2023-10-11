@@ -20,7 +20,7 @@ CDK
 Create test videos:
 
 ```bash
-aws events put-events --entries '[{"Source":"software.serverlessflix.video", "EventBusName":"videos", "DetailType":"new-video","Detail":"{\"id\": \"something new\",\"channel\" :\"This channel\",\"title\" :\"My Title\",\"author\": {\"username\" : \"Max\", \"email\" : \"mxschell@amazon.de\"}}"}]'
+aws events put-events --entries '[{"Source":"software.serverlessflix.video", "EventBusName":"videos", "DetailType":"new-video","Detail":"{\"id\": \"something new\",\"channel\" :\"This channel\",\"title\" :\"My Title\",\"author\": {\"username\" : \"Max\", \"email\" : \"something123454@amazon.de\"}}"}]'
 ```
 
 ## Clean up
