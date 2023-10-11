@@ -18,7 +18,11 @@ cdk deploy
 
 ## Testing
 
+Create test videos:
 
+```bash
+aws events put-events --entries '[{"Source":"software.serverlessflix.video", "EventBusName":"videos", "DetailType":"new-video","Detail":"{\"id\": \"something new\",\"channel\" :\"This channel\",\"title\" :\"My Title\",\"author\": {\"username\" : \"Max\"}}"}]'
+```
 
 
 ## Clean up

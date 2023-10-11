@@ -1,5 +1,6 @@
 package infrastructure.reinvent.serverlessflix.claps;
 
+import software.amazon.awscdk.CfnOutput;
 import software.amazon.awscdk.services.dynamodb.Attribute;
 import software.amazon.awscdk.services.dynamodb.AttributeType;
 import software.amazon.awscdk.services.dynamodb.BillingMode;
