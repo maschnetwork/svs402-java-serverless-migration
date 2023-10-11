@@ -8,7 +8,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import java.time.LocalDateTime;
 import java.util.List;
 
-public record EventBridgeSchedulerEvent<T>(
+public record EventBridgeEvent<T>(
         String version,
         String account,
         String region,

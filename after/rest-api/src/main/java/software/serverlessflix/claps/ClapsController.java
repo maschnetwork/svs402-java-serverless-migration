@@ -16,8 +16,8 @@ public class ClapsController {
         this.clapsService = clapsService;
     }
 
-    public ClapsResponse claps(String videoId) {
+    /* public ClapsResponse claps(String videoId) {
         int claps = clapsService.getClaps(videoId);
-    }
+    } */
 
 }

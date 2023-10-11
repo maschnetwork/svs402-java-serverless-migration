@@ -9,6 +9,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 @SpringBootApplication
 public class ClapsWebApp {
 
+
     public static void main(String[] args) {
         SpringApplication.run(ClapsWebApp.class, args);
     }

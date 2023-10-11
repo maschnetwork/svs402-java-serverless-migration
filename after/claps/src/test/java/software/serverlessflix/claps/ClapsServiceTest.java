@@ -69,6 +69,7 @@ public class ClapsServiceTest {
                 "https://dmpdx8pmqxo3f.cloudfront.net/media/ivs/v1/832196373597/ERaAhUZnrHJG/2023/8/30/14/57/ovoTjGdG38Mk/media/hls/720p30/thumbnails/thumb0.jpg",
                 "https://dmpdx8pmqxo3f.cloudfront.net/media/ivs/v1/832196373597/ERaAhUZnrHJG/2023/8/30/14/57/ovoTjGdG38Mk/media/hls/720p30/output.mp4",
                 "08d143f0-00f1-7052-f97a-cbcda39ff077",
+                "My fancy title",
                 "08d143f0-00f1-7052-f97a-cbcda39ff077",
                 new Author("random1"));
         clapsService.createVideo(video);

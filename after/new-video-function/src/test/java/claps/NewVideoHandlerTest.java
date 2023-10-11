@@ -62,7 +62,7 @@ public class NewVideoHandlerTest {
 
     @Test
     public void validPreValidateEventSerializesWithoutError() throws IOException {
-        ByteArrayInputStream inputStream = new ByteArrayInputStream(PRE_VALIDATE_EVENT.getBytes());
+        var inputStream = new ByteArrayInputStream(PRE_VALIDATE_EVENT.getBytes());
         newVideoHandler.handleRequest(inputStream, null, TEST_CONTEXT);
     }
 }
