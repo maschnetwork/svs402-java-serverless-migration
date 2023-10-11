@@ -3,5 +3,5 @@
 
 package software.serverlessflix.claps.domain;
 
-public record Author(String username) {
+public record Author(String username, String email) {
 }
