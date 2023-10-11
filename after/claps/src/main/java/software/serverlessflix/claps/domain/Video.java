@@ -11,6 +11,7 @@ public record Video(String createdAt,
                     String thumbnail,
                     String playbackUrl,
                     String channel,
+                    String title,
                     String id,
                     Author author) {
 
