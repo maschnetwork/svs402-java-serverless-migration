@@ -33,7 +33,7 @@ public class NewVideoHandler implements RequestStreamHandler {
 
     private final ClapsService clapsService;
     private final SchedulerAsyncClient schedulerAsyncClient;
-    private final String NOTIFICATION_LAMBDA_ARN = System.getenv("CREATOR_NOTIFICATION_TARGET");
+    private static final String NOTIFICATION_LAMBDA_ARN = System.getenv("CREATOR_NOTIFICATION_TARGET");
     private static final String NOTIFICATION_ROLE_ARN = System.getenv("CREATOR_NOTIFICATION_ROLE_ARN");
     private static final String SCHEDULING_GROUP = System.getenv("SCHEDULING_GROUP");;
 
