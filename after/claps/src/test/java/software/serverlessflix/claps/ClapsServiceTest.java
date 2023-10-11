@@ -75,5 +75,3 @@ public class ClapsServiceTest {
         clapsService.createVideo(video);
     }
 }
-
-{\r\n\"id\": \"something\",\r\n\"channel\" :\"This channel\",\r\n\u201Ctitle\u201D :\u201CMy Title\u201D,\r\n\"author\": {\"username\" : \"Max\"}}
