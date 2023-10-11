@@ -10,6 +10,13 @@ CDK
 
 ## Deployment
 
+Navigate to the after folder:
+
+```bash
+cd after
+mvn clean package -DskipTests=true
+```
+
 ```bash
 cd infra
 cdk deploy
