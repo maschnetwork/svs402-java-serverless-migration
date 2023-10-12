@@ -28,13 +28,14 @@ public record Video(String createdAt,
     }
 
     public static Video fromDynamoDBAttributeMap(Map<String, AttributeValue> dynamoAttributeMap){
-        return new Video(dynamoAttributeMap.get("createdAt").toString(),
-                dynamoAttributeMap.get("thumbnail").toString(),
-                dynamoAttributeMap.get("playbackUrl").toString(),
-                dynamoAttributeMap.get("channel").toString(),
-                dynamoAttributeMap.get("title").toString(),
-                dynamoAttributeMap.get("id").toString(),
-                new Author(dynamoAttributeMap.get("author").toString(), dynamoAttributeMap.get("author_email").toString())
+        return new Video(dynamoAttributeMap.getOrDefault("createdAt", AttributeValue.fromS("")).toString(),
+                dynamoAttributeMap.getOrDefault("thumbnail", AttributeValue.fromS("")).toString(),
+                dynamoAttributeMap.getOrDefault("playbackUrl", AttributeValue.fromS("")).toString(),
+                dynamoAttributeMap.getOrDefault("channel", AttributeValue.fromS("")).toString(),
+                dynamoAttributeMap.getOrDefault("title", AttributeValue.fromS("")).toString(),
+                dynamoAttributeMap.getOrDefault("id", AttributeValue.fromS("")).toString(),
+                new Author(dynamoAttributeMap.getOrDefault("author", AttributeValue.fromS("")).toString(),
+                        dynamoAttributeMap.getOrDefault("author_email", AttributeValue.fromS("")).toString())
                 );
     }
 

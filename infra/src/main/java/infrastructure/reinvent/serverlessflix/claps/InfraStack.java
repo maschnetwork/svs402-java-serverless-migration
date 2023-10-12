@@ -122,6 +122,7 @@ public class InfraStack extends Stack {
                 .runtime(Runtime.JAVA_17)
                 .functionName("video-spring-rest-api")
                 .memorySize(2048)
+                //Todo: Enable SnapStart
                 .timeout(Duration.seconds(29))
                 .code(Code.fromAsset("../after/rest-api/target/svs402-rest-api-1.0.jar"))
                 .handler("com.amazonaws.serverless.proxy.spring.SpringDelegatingLambdaContainerHandler")
