@@ -4,4 +4,4 @@ mvn -f after/pom.xml clean package -DskipTests=true
 
 cd infra
 
-cdk deploy
+cdk deploy --outputs-file target/output.json

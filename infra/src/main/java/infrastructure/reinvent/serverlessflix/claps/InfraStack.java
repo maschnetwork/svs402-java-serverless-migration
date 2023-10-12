@@ -1,6 +1,9 @@
 package infrastructure.reinvent.serverlessflix.claps;
 
-import software.amazon.awscdk.CfnOutput;
+import software.amazon.awscdk.*;
+import software.amazon.awscdk.services.apigateway.LambdaIntegration;
+import software.amazon.awscdk.services.apigateway.ProxyResourceOptions;
+import software.amazon.awscdk.services.apigateway.RestApi;
 import software.amazon.awscdk.services.dynamodb.Attribute;
 import software.amazon.awscdk.services.dynamodb.AttributeType;
 import software.amazon.awscdk.services.dynamodb.BillingMode;
@@ -21,9 +24,6 @@ import software.amazon.awscdk.services.lambda.Tracing;
 import software.amazon.awscdk.services.scheduler.CfnSchedule;
 import software.amazon.awscdk.services.scheduler.CfnScheduleGroup;
 import software.constructs.Construct;
-import software.amazon.awscdk.Stack;
-import software.amazon.awscdk.StackProps;
-import software.amazon.awscdk.Duration;
 import software.amazon.awscdk.services.lambda.Runtime;
 
 import java.util.List;
@@ -118,9 +118,29 @@ public class InfraStack extends Stack {
                 .statements(List.of(statement))
                 .build();
 
+        var clapsRestApiFunction = Function.Builder.create(this, "VideoRestApiFunction")
+                .runtime(Runtime.JAVA_17)
+                .functionName("video-spring-rest-api")
+                .memorySize(2048)
+                //Todo: Enable SnapStart
+                .timeout(Duration.seconds(29))
+                .code(Code.fromAsset("../after/rest-api/target/svs402-rest-api-1.0.jar"))
+                .handler("com.amazonaws.serverless.proxy.spring.SpringDelegatingLambdaContainerHandler")
+                .environment(Map.of(
+                        "MAIN_CLASS", "software.serverlessflix.claps.ClapsWebApp",
+                        "TABLE_NAME", videoClapsTable.getTableName()
+                ))
+                .build();
 
+        var api = RestApi.Builder.create(this, "VideoApi").restApiName("VideoApi").build();
+        var integration = LambdaIntegration.Builder.create(clapsRestApiFunction).build();
+        var proxyResourceOption = ProxyResourceOptions.builder().defaultIntegration(integration).build();
+        api.getRoot().addProxy(proxyResourceOption);
+        videoClapsTable.grantReadData(clapsRestApiFunction);
 
-
+        CfnOutput.Builder.create(this, "ApiEndpointSpring")
+                .value(api.getUrl())
+                .build();
     }
 
 }

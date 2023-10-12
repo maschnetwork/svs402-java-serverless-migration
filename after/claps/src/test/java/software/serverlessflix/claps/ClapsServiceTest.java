@@ -65,7 +65,6 @@ public class ClapsServiceTest {
     @Test
     public void createVideo() throws UnableToSaveException {
         Video video = new Video("2023-08-30T14:57:51.169Z",
-                24000,
                 "https://dmpdx8pmqxo3f.cloudfront.net/media/ivs/v1/832196373597/ERaAhUZnrHJG/2023/8/30/14/57/ovoTjGdG38Mk/media/hls/720p30/thumbnails/thumb0.jpg",
                 "https://dmpdx8pmqxo3f.cloudfront.net/media/ivs/v1/832196373597/ERaAhUZnrHJG/2023/8/30/14/57/ovoTjGdG38Mk/media/hls/720p30/output.mp4",
                 "08d143f0-00f1-7052-f97a-cbcda39ff077",
