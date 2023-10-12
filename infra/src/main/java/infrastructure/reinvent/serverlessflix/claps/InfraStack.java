@@ -18,6 +18,8 @@ import software.amazon.awscdk.services.lambda.Code;
 import software.amazon.awscdk.services.lambda.Function;
 import software.amazon.awscdk.services.lambda.SnapStartConf;
 import software.amazon.awscdk.services.lambda.Tracing;
+import software.amazon.awscdk.services.scheduler.CfnSchedule;
+import software.amazon.awscdk.services.scheduler.CfnScheduleGroup;
 import software.constructs.Construct;
 import software.amazon.awscdk.Stack;
 import software.amazon.awscdk.StackProps;
@@ -47,7 +49,7 @@ public class InfraStack extends Stack {
                         .build())
                 .build();
 
-       /* var invokeNotifierFunctionRole = Role.Builder.create(this, "Role")
+        var invokeNotifierFunctionRole = Role.Builder.create(this, "Role")
                 .roleName("invokeNotifierFunctionRole")
                 .assumedBy(new ServicePrincipal("scheduler.amazonaws.com"))
                 .build();
@@ -62,7 +64,11 @@ public class InfraStack extends Stack {
                 .tracing(Tracing.ACTIVE)
                 .environment(Map.of(
                         "TABLE_NAME", videoClapsTable.getTableName()))
-                .build(); */
+                .build();
+
+        var scheduleGroup = CfnScheduleGroup.Builder.create(this, "scheduleGroup")
+                .name("ClapNotifications")
+                .build();
 
         var newVideoHandler = Function.Builder.create(this,"NewVideoHandler")
                 .runtime(Runtime.JAVA_17)
@@ -73,10 +79,10 @@ public class InfraStack extends Stack {
                 .code(Code.fromAsset("../after/new-video-function/target/svs402-new-video-function-1.0.jar"))
                 .tracing(Tracing.ACTIVE)
                 .environment(Map.of(
-                        "TABLE_NAME", videoClapsTable.getTableName()))
-                        // @TODO use alias
-                      //   "CREATOR_NOTIFICATION_TARGET", notifyCreatorHandler.getFunctionArn(),
-                     //   "CREATOR_NOTIFICATION_ROLE_ARN", invokeNotifierFunctionRole.getRoleArn()))
+                        "TABLE_NAME", videoClapsTable.getTableName(),
+                         "CREATOR_NOTIFICATION_TARGET", notifyCreatorHandler.getFunctionArn(),
+                        "CREATOR_NOTIFICATION_ROLE_ARN", invokeNotifierFunctionRole.getRoleArn(),
+                        "SCHEDULING_GROUP", scheduleGroup.getName()))
                 .build();
 
         videoClapsTable.grantReadWriteData(newVideoHandler);
@@ -90,7 +96,8 @@ public class InfraStack extends Stack {
                 .build();
 
 
-       /* newVideoHandler.addToRolePolicy(PolicyStatement.Builder.create()
+
+        newVideoHandler.addToRolePolicy(PolicyStatement.Builder.create()
                 .actions(List.of("scheduler:CreateSchedule"))
                 .resources(List.of("*"))
                 .build());
@@ -100,31 +107,19 @@ public class InfraStack extends Stack {
                 .resources(List.of(invokeNotifierFunctionRole.getRoleArn()))
                 .build());
 
-        PolicyStatement statement = PolicyStatement.Builder.create()
+        var statement = PolicyStatement.Builder.create()
                 .effect(Effect.ALLOW)
                 .actions(List.of("lambda:InvokeFunction"))
-                .resources(List.of(newVideoHandler.getFunctionArn()))
+                .resources(List.of(notifyCreatorHandler.getFunctionArn()))
                 .build();
-        Policy policy = Policy.Builder.create(this, "Policy")
+        var policy = Policy.Builder.create(this, "Policy")
                 .roles(List.of(invokeNotifierFunctionRole))
                 .policyName("ScheduleToInvokeLambdas")
                 .statements(List.of(statement))
-                .build(); */
+                .build();
 
-//        CfnScheduleGroup scheduleGroup = CfnScheduleGroup.Builder.create(this, "scheduleGroup")
-//                .name("lambdaSchedules")
-//                .build();
-//
-//        CfnSchedule.Builder.create(this, "lambdaSchedule")
-//                .flexibleTimeWindow(CfnSchedule.FlexibleTimeWindowProperty.builder()
-//                        .mode("OFF").build())
-//                .groupName(scheduleGroup.getName())
-//                .scheduleExpression("rate(1 minute)")
-//                .target(CfnSchedule.TargetProperty.builder()
-//                        .arn(newVideoHandler.getFunctionArn())
-//                        .roleArn(invokeNotifierFunctionRole.getRoleArn())
-//                        .build())
-//                .build();
+
+
 
     }
 

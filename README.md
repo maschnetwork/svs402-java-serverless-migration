@@ -10,27 +10,18 @@ CDK
 
 ## Deployment
 
-Navigate to the after folder:
 
 ```bash
-cd after
-mvn clean package -DskipTests=true
+./build-deploy.sh
 ```
-
-```bash
-cd infra
-cdk deploy
-```
-
 
 ## Testing
 
 Create test videos:
 
 ```bash
-aws events put-events --entries '[{"Source":"software.serverlessflix.video", "EventBusName":"videos", "DetailType":"new-video","Detail":"{\"id\": \"something new\",\"channel\" :\"This channel\",\"title\" :\"My Title\",\"author\": {\"username\" : \"Max\"}}"}]'
+aws events put-events --entries '[{"Source":"software.serverlessflix.video", "EventBusName":"videos", "DetailType":"new-video","Detail":"{\"id\": \"something new\",\"channel\" :\"This channel\",\"title\" :\"My Title\",\"author\": {\"username\" : \"Max\", \"email\" : \"something123454@amazon.de\"}}"}]'
 ```
-
 
 ## Clean up
 
