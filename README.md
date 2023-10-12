@@ -10,7 +10,6 @@ CDK
 
 ## Deployment
 
-
 ```bash
 ./build-deploy.sh
 ```
@@ -20,9 +19,20 @@ CDK
 Create test videos:
 
 ```bash
-aws events put-events --entries '[{"Source":"software.serverlessflix.video", "EventBusName":"videos", "DetailType":"new-video","Detail":"{\"id\": \"something new\",\"channel\" :\"This channel\",\"title\" :\"My Title\",\"author\": {\"username\" : \"Max\", \"email\" : \"something123454@amazon.de\"}}"}]'
+aws events put-events --entries '[{"Source":"software.serverlessflix.video", "EventBusName":"videos", "DetailType":"new-video","Detail":"{\"id\": \"something\",\"channel\" :\"This channel\",\"title\" :\"My Title\",\"author\": {\"username\" : \"Max\", \"email\" : \"something123454@amazon.de\"}}"}]'
 ```
 
+Call REST-Api (All Videos):
+
+```bash
+curl --location --request GET $(cat infra/target/output.json | jq -r '."SVS402-InfraStack".ApiEndpointSpring')'/videos'
+```
+
+Call REST-Api (Single Videos):
+
+```bash
+curl --location --request GET $(cat infra/target/output.json | jq -r '."SVS402-InfraStack".ApiEndpointSpring')'/videos/something'
+```
 ## Clean up
 
 ```bash

@@ -4,15 +4,38 @@
 package software.serverlessflix.claps.domain;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import software.amazon.awssdk.services.dynamodb.model.AttributeValue;
+
+import java.util.Map;
 
 public record Video(String createdAt,
-                    @JsonProperty("durationmillis")
-                    Integer durationMillis,
                     String thumbnail,
                     String playbackUrl,
                     String channel,
                     String title,
                     String id,
                     Author author) {
+
+    public Map<String, AttributeValue> toDynamoDBAttributeMap() {
+        return Map.of("id", AttributeValue.fromS(this.id()),
+                "title", AttributeValue.fromS(this.title()),
+                "playbackUrl", AttributeValue.fromS(this.playbackUrl()),
+                "channel", AttributeValue.fromS(this.channel()),
+                "thumbnail", AttributeValue.fromS(this.channel()),
+                "createdAt", AttributeValue.fromS(this.createdAt()),
+                "author", AttributeValue.fromS(this.author().username()),
+                "author_email", AttributeValue.fromS(this.author().email()));
+    }
+
+    public static Video fromDynamoDBAttributeMap(Map<String, AttributeValue> dynamoAttributeMap){
+        return new Video(dynamoAttributeMap.get("createdAt").toString(),
+                dynamoAttributeMap.get("thumbnail").toString(),
+                dynamoAttributeMap.get("playbackUrl").toString(),
+                dynamoAttributeMap.get("channel").toString(),
+                dynamoAttributeMap.get("title").toString(),
+                dynamoAttributeMap.get("id").toString(),
+                new Author(dynamoAttributeMap.get("author").toString(), dynamoAttributeMap.get("author_email").toString())
+                );
+    }
 
 }

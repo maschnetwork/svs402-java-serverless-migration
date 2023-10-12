@@ -3,11 +3,13 @@
 
 package software.serverlessflix.claps;
 
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+import software.serverlessflix.claps.domain.Video;
+
+import java.util.List;
 
 @RestController
-@RequestMapping("/claps")
 public class ClapsController {
 
     private final ClapsService clapsService;
@@ -16,8 +18,18 @@ public class ClapsController {
         this.clapsService = clapsService;
     }
 
-    /* public ClapsResponse claps(String videoId) {
-        int claps = clapsService.getClaps(videoId);
-    } */
+    @GetMapping("/videos")
+    public ResponseEntity<List<Video>> getVideos() {
+        return ResponseEntity.ok(clapsService.getVideos());
+    }
+
+    @GetMapping("/videos/{videoId}")
+    public ResponseEntity<Video> getVideo(@PathVariable String videoId) {
+        try {
+            return ResponseEntity.ok(clapsService.getVideo(videoId));
+        } catch (Exception e) {
+            return ResponseEntity.notFound().build();
+        }
+    }
 
 }
