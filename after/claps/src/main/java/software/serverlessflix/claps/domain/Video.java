@@ -28,14 +28,15 @@ public record Video(String createdAt,
     }
 
     public static Video fromDynamoDBAttributeMap(Map<String, AttributeValue> dynamoAttributeMap){
-        return new Video(dynamoAttributeMap.getOrDefault("createdAt", AttributeValue.fromS("")).toString(),
-                dynamoAttributeMap.getOrDefault("thumbnail", AttributeValue.fromS("")).toString(),
-                dynamoAttributeMap.getOrDefault("playbackUrl", AttributeValue.fromS("")).toString(),
-                dynamoAttributeMap.getOrDefault("channel", AttributeValue.fromS("")).toString(),
-                dynamoAttributeMap.getOrDefault("title", AttributeValue.fromS("")).toString(),
-                dynamoAttributeMap.getOrDefault("id", AttributeValue.fromS("")).toString(),
-                new Author(dynamoAttributeMap.getOrDefault("author", AttributeValue.fromS("")).toString(),
-                        dynamoAttributeMap.getOrDefault("author_email", AttributeValue.fromS("")).toString())
+        var emptyDefault = AttributeValue.fromS("");
+        return new Video(dynamoAttributeMap.getOrDefault("createdAt", emptyDefault).s(),
+                dynamoAttributeMap.getOrDefault("thumbnail", emptyDefault).s(),
+                dynamoAttributeMap.getOrDefault("playbackUrl", emptyDefault).s(),
+                dynamoAttributeMap.getOrDefault("channel", emptyDefault).s(),
+                dynamoAttributeMap.getOrDefault("title", emptyDefault).s(),
+                dynamoAttributeMap.getOrDefault("id", emptyDefault).s(),
+                new Author(dynamoAttributeMap.getOrDefault("author", emptyDefault).s(),
+                        dynamoAttributeMap.getOrDefault("author_email", emptyDefault).s())
                 );
     }
 

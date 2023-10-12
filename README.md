@@ -25,13 +25,13 @@ aws events put-events --entries '[{"Source":"software.serverlessflix.video", "Ev
 Call REST-Api (All Videos):
 
 ```bash
-curl --location --request GET $(cat infra/target/output.json | jq -r '."SVS402-InfraStack".ApiEndpointSpring')'/videos'
+curl --location --request GET $(cat infra/target/output.json | jq -r '."SVS402-InfraStack".ApiEndpointSpring')'/videos' | jq
 ```
 
 Call REST-Api (Single Videos):
 
 ```bash
-curl --location --request GET $(cat infra/target/output.json | jq -r '."SVS402-InfraStack".ApiEndpointSpring')'/videos/something'
+curl --location --request GET $(cat infra/target/output.json | jq -r '."SVS402-InfraStack".ApiEndpointSpring')'/videos/something' | jq
 ```
 ## Clean up
 
