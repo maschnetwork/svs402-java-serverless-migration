@@ -31,7 +31,7 @@ public class ClapProcessor implements RequestHandler<SQSEvent, SQSBatchResponse>
 
     private ClapNotification clapNotificationFromSQSBody(SQSEvent.SQSMessage sqsMessage){
         try {
-             return JSON.std.beanFrom(ClapNotification.class, sqsMessage.getBody());
+             return new ClapNotification(JSON.std.mapFrom(sqsMessage.getBody()).get("video").toString());
         } catch (IOException e) {
            throw new RuntimeException("Unable to process JSON of SQSMessage", e);
         }
