@@ -37,6 +37,6 @@ public class ClapProcessor implements RequestHandler<SQSEvent, SQSBatchResponse>
         }
     }
 
-    public record ClapNotification(String video, String authorUsername, String authorEmail){};
+    public record ClapNotification(String video){}
 
 }
