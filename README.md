@@ -39,10 +39,7 @@ Call REST-API (Post Claps):
 
 ```bash
 curl --location --request POST $(cat infra/target/output.json | jq -r '."SVS402-InfraStack".ApiEndpointSpring')'/claps' --data-raw '{
-    "name": "Something",
-    "age": "Older",
-    "type": "Animal",
-    "size": "Very big"
+    "video": "something"
 }' --header 'Content-Type: application/json' | jq
 
 ```
