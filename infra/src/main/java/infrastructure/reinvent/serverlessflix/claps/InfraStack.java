@@ -1,9 +1,7 @@
 package infrastructure.reinvent.serverlessflix.claps;
 
 import software.amazon.awscdk.*;
-import software.amazon.awscdk.services.apigateway.LambdaIntegration;
-import software.amazon.awscdk.services.apigateway.ProxyResourceOptions;
-import software.amazon.awscdk.services.apigateway.RestApi;
+import software.amazon.awscdk.services.apigateway.*;
 import software.amazon.awscdk.services.dynamodb.Attribute;
 import software.amazon.awscdk.services.dynamodb.AttributeType;
 import software.amazon.awscdk.services.dynamodb.BillingMode;
@@ -21,8 +19,11 @@ import software.amazon.awscdk.services.lambda.Code;
 import software.amazon.awscdk.services.lambda.Function;
 import software.amazon.awscdk.services.lambda.SnapStartConf;
 import software.amazon.awscdk.services.lambda.Tracing;
+import software.amazon.awscdk.services.lambda.eventsources.SqsEventSource;
 import software.amazon.awscdk.services.scheduler.CfnSchedule;
 import software.amazon.awscdk.services.scheduler.CfnScheduleGroup;
+import software.amazon.awscdk.services.sns.subscriptions.SqsSubscription;
+import software.amazon.awscdk.services.sqs.Queue;
 import software.constructs.Construct;
 import software.amazon.awscdk.services.lambda.Runtime;
 
@@ -136,7 +137,53 @@ public class InfraStack extends Stack {
         var integration = LambdaIntegration.Builder.create(clapsRestApiFunction).build();
         var proxyResourceOption = ProxyResourceOptions.builder().defaultIntegration(integration).build();
         api.getRoot().addProxy(proxyResourceOption);
+
+        var sqsQueue = Queue.Builder.create(this, "ClapQueue").queueName("ClapQueue").build();
+
+
+
+
+        var sqsRole = Role.Builder.create(this, "ApiGatewaySqsRole")
+                .roleName("ClapApiGatewaySqsRole")
+                .assumedBy(new ServicePrincipal("apigateway.amazonaws.com"))
+                .build();
+
+        sqsQueue.grantSendMessages(sqsRole);
+        var integrationOptions = IntegrationOptions.builder()
+                .integrationResponses(List.of(IntegrationResponse.builder().statusCode("200").build()))
+                .requestTemplates(Map.of( "application/json", "Action=SendMessage&MessageBody=$input.body"))
+                .requestParameters(Map.of("integration.request.header.Content-Type", "'application/x-www-form-urlencoded'"))
+                .passthroughBehavior(PassthroughBehavior.NEVER)
+                .credentialsRole(sqsRole)
+                .build();
         videoClapsTable.grantReadData(clapsRestApiFunction);
+
+        var sqsIntegration = AwsIntegration.Builder.create()
+                .integrationHttpMethod("POST")
+                .service("sqs")
+                .options(integrationOptions)
+                .path("%s/%s".formatted(this.getAccount(), sqsQueue.getQueueName()))
+                .build();
+
+        api.getRoot().addResource("claps")
+                .addMethod("POST", sqsIntegration)
+                .addMethodResponse(MethodResponse.builder().statusCode("200").build());
+
+        var clapProcessor = Function.Builder.create(this,"ClapProcessor")
+                .runtime(Runtime.JAVA_17)
+                .memorySize(1024)
+                .handler("software.serverlessflix.claps.ClapProcessor")
+                .timeout(Duration.seconds(30))
+                .snapStart(SnapStartConf.ON_PUBLISHED_VERSIONS)
+                .code(Code.fromAsset("../after/clap-processor/target/svs402-clap-processor-1.0.jar"))
+                .tracing(Tracing.ACTIVE)
+                .environment(Map.of(
+                        "TABLE_NAME", videoClapsTable.getTableName())
+                )
+                .events(List.of(new SqsEventSource(sqsQueue)))
+                .build();
+
+        sqsQueue.grantConsumeMessages(clapProcessor);
 
         CfnOutput.Builder.create(this, "ApiEndpointSpring")
                 .value(api.getUrl())

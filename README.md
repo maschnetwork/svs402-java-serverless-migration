@@ -33,6 +33,16 @@ Call REST-Api (Single Videos):
 ```bash
 curl --location --request GET $(cat infra/target/output.json | jq -r '."SVS402-InfraStack".ApiEndpointSpring')'/videos/something' | jq
 ```
+
+
+Call REST-API (Post Claps): 
+
+```bash
+curl --location --request POST $(cat infra/target/output.json | jq -r '."SVS402-InfraStack".ApiEndpointSpring')'/claps' --data-raw '{
+    "video": "something"
+}' --header 'Content-Type: application/json' | jq
+
+```
 ## Clean up
 
 ```bash
