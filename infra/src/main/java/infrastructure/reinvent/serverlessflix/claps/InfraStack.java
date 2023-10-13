@@ -19,8 +19,10 @@ import software.amazon.awscdk.services.lambda.Code;
 import software.amazon.awscdk.services.lambda.Function;
 import software.amazon.awscdk.services.lambda.SnapStartConf;
 import software.amazon.awscdk.services.lambda.Tracing;
+import software.amazon.awscdk.services.lambda.eventsources.SqsEventSource;
 import software.amazon.awscdk.services.scheduler.CfnSchedule;
 import software.amazon.awscdk.services.scheduler.CfnScheduleGroup;
+import software.amazon.awscdk.services.sns.subscriptions.SqsSubscription;
 import software.amazon.awscdk.services.sqs.Queue;
 import software.constructs.Construct;
 import software.amazon.awscdk.services.lambda.Runtime;
@@ -166,6 +168,22 @@ public class InfraStack extends Stack {
         api.getRoot().addResource("claps")
                 .addMethod("POST", sqsIntegration)
                 .addMethodResponse(MethodResponse.builder().statusCode("200").build());
+
+        var clapProcessor = Function.Builder.create(this,"ClapProcessor")
+                .runtime(Runtime.JAVA_17)
+                .memorySize(1024)
+                .handler("software.serverlessflix.claps.ClapProcessor")
+                .timeout(Duration.seconds(30))
+                .snapStart(SnapStartConf.ON_PUBLISHED_VERSIONS)
+                .code(Code.fromAsset("../after/clap-processor/target/svs402-clap-processor-1.0.jar"))
+                .tracing(Tracing.ACTIVE)
+                .environment(Map.of(
+                        "TABLE_NAME", videoClapsTable.getTableName())
+                )
+                .events(List.of(new SqsEventSource(sqsQueue)))
+                .build();
+
+        sqsQueue.grantConsumeMessages(clapProcessor);
 
         CfnOutput.Builder.create(this, "ApiEndpointSpring")
                 .value(api.getUrl())

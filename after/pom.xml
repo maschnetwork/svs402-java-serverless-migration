@@ -8,6 +8,7 @@
     <name>ServerlessFlix Claps - Parent</name>
 
     <modules>
+        <module>clap-processor</module>
         <module>claps</module>
         <module>new-video-function</module>
         <module>scheduled-job</module>
