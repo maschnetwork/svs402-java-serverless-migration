@@ -8,13 +8,19 @@ import com.amazonaws.services.lambda.runtime.RequestHandler;
 import com.amazonaws.services.lambda.runtime.events.SQSBatchResponse;
 import com.amazonaws.services.lambda.runtime.events.SQSEvent;
 import com.fasterxml.jackson.jr.ob.JSON;
+import software.amazon.awssdk.http.crt.AwsCrtAsyncHttpClient;
+import software.serverlessflix.claps.domain.VideoClaps;
 
 import java.io.IOException;
 
 import static java.util.stream.Collectors.groupingBy;
 
 public class ClapProcessor implements RequestHandler<SQSEvent, SQSBatchResponse> {
+    private final ClapsService clapsService;
 
+    public ClapProcessor() {
+        this.clapsService = new ClapsService(System.getenv("TABLE_NAME"));
+    }
 
     @Override
     public SQSBatchResponse handleRequest(SQSEvent sqsEvent, Context context) {
@@ -23,9 +29,11 @@ public class ClapProcessor implements RequestHandler<SQSEvent, SQSBatchResponse>
                 .map(this::clapNotificationFromSQSBody)
                 .collect(groupingBy(ClapNotification::video));
 
-        //Todo: Sending BatchExecuteStatement via ClapService
-        System.out.println(videos);
+        var videoClaps = videos.keySet().stream()
+                        .map(it -> new VideoClaps(it, videos.get(it).size()))
+                        .toList();
 
+        clapsService.createClaps(videoClaps);
         return null;
     }
 

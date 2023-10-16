@@ -169,6 +169,12 @@ public class InfraStack extends Stack {
                 .addMethod("POST", sqsIntegration)
                 .addMethodResponse(MethodResponse.builder().statusCode("200").build());
 
+        var sqsEventSource = SqsEventSource.Builder
+                        .create(sqsQueue)
+                        .batchSize(25)
+                        .maxBatchingWindow(Duration.seconds(1))
+                        .build();
+
         var clapProcessor = Function.Builder.create(this,"ClapProcessor")
                 .runtime(Runtime.JAVA_17)
                 .memorySize(1024)
@@ -180,10 +186,11 @@ public class InfraStack extends Stack {
                 .environment(Map.of(
                         "TABLE_NAME", videoClapsTable.getTableName())
                 )
-                .events(List.of(new SqsEventSource(sqsQueue)))
+                .events(List.of(sqsEventSource))
                 .build();
 
         sqsQueue.grantConsumeMessages(clapProcessor);
+        videoClapsTable.grantFullAccess(clapProcessor);
 
         CfnOutput.Builder.create(this, "ApiEndpointSpring")
                 .value(api.getUrl())

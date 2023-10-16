@@ -6,11 +6,9 @@ package software.serverlessflix.claps;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import software.amazon.awssdk.services.dynamodb.DynamoDbAsyncClient;
-import software.amazon.awssdk.services.dynamodb.model.AttributeValue;
-import software.amazon.awssdk.services.dynamodb.model.GetItemRequest;
-import software.amazon.awssdk.services.dynamodb.model.PutItemRequest;
-import software.amazon.awssdk.services.dynamodb.model.ScanRequest;
+import software.amazon.awssdk.services.dynamodb.model.*;
 import software.serverlessflix.claps.domain.Video;
+import software.serverlessflix.claps.domain.VideoClaps;
 
 import java.util.List;
 import java.util.Map;
@@ -82,5 +80,33 @@ public class ClapsService {
             logger.error(e.getMessage());
             throw new RuntimeException("Unable to query DynamoDB table", e);
         }
+    }
+
+    public void createClaps(List<VideoClaps> clapsForVideos)  {
+        var clapCounterUpdateStatements = clapsForVideos.stream()
+                .map(this::createUpdateRequest)
+                .toList();
+
+        var batchExecuteStatementRequest = BatchExecuteStatementRequest.builder()
+                .statements(clapCounterUpdateStatements)
+                .build();
+
+        try {
+            var result = this.dynamoDbAsyncClient.batchExecuteStatement(batchExecuteStatementRequest).get();
+            System.out.println(result);
+        } catch (InterruptedException | ExecutionException e) {
+            logger.error(e.getMessage(), e);
+            throw new RuntimeException("Unable to execute BatchExecuteStatement DynamoDB table", e);
+        }
+    }
+
+    private BatchStatementRequest createUpdateRequest(VideoClaps videoClaps){
+        var statement = "UPDATE \"%s\" set claps=claps+? Where id = ?"
+                        .formatted(this.tableName);
+       return BatchStatementRequest.builder()
+                .statement(statement)
+                .parameters(AttributeValue.fromN(videoClaps.numberOfClaps().toString()),
+                        AttributeValue.fromS(videoClaps.videoId()))
+                .build();
     }
 }
