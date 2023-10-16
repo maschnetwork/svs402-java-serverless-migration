@@ -70,7 +70,8 @@ public class ClapsServiceTest {
                 "08d143f0-00f1-7052-f97a-cbcda39ff077",
                 "My fancy title",
                 "08d143f0-00f1-7052-f97a-cbcda39ff077",
-                new Author("random1", "random1234123@amazon.de"));
+                new Author("random1", "random1234123@amazon.de"),
+                "0");
         clapsService.createVideo(video);
     }
 }

@@ -35,7 +35,7 @@ public class ClapsService {
                 .tableName(this.tableName)
                 .item(video.toDynamoDBAttributeMap())
                 .build();
-
+        System.out.println(putItemRequest);
         try {
             this.dynamoDbAsyncClient.putItem(putItemRequest).get();
             logger.info("Video with ID: {} created", video.id());
@@ -93,7 +93,6 @@ public class ClapsService {
 
         try {
             var result = this.dynamoDbAsyncClient.batchExecuteStatement(batchExecuteStatementRequest).get();
-            System.out.println(result);
         } catch (InterruptedException | ExecutionException e) {
             logger.error(e.getMessage(), e);
             throw new RuntimeException("Unable to execute BatchExecuteStatement DynamoDB table", e);

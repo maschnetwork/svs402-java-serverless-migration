@@ -14,7 +14,8 @@ public record Video(String createdAt,
                     String channel,
                     String title,
                     String id,
-                    Author author) {
+                    Author author,
+                    String claps) {
 
     public Map<String, AttributeValue> toDynamoDBAttributeMap() {
         return Map.of("id", AttributeValue.fromS(this.id()),
@@ -22,6 +23,7 @@ public record Video(String createdAt,
                 "playbackUrl", AttributeValue.fromS(this.playbackUrl()),
                 "channel", AttributeValue.fromS(this.channel()),
                 "thumbnail", AttributeValue.fromS(this.channel()),
+                "claps", AttributeValue.fromN("0"),
                 "createdAt", AttributeValue.fromS(this.createdAt()),
                 "author", AttributeValue.fromS(this.author().username()),
                 "author_email", AttributeValue.fromS(this.author().email()));
@@ -36,7 +38,8 @@ public record Video(String createdAt,
                 dynamoAttributeMap.getOrDefault("title", emptyDefault).s(),
                 dynamoAttributeMap.getOrDefault("id", emptyDefault).s(),
                 new Author(dynamoAttributeMap.getOrDefault("author", emptyDefault).s(),
-                        dynamoAttributeMap.getOrDefault("author_email", emptyDefault).s())
+                        dynamoAttributeMap.getOrDefault("author_email", emptyDefault).s()),
+                dynamoAttributeMap.getOrDefault("claps", AttributeValue.fromN("0")).n()
                 );
     }
 
