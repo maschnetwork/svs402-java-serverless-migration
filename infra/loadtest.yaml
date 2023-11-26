@@ -1,0 +1,12 @@
+config:
+  phases:
+    - duration: 60
+      arrivalRate: 100
+  http:
+    timeout: 29
+scenarios:
+  - flow:
+      - post:
+          url: "{{ url }}"
+          json:
+            video: "{{ videoId }}"
